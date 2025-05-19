@@ -1,0 +1,200 @@
+﻿<mah:MetroWindow xmlns:Wizard="clr-namespace:Dempbot4.View.Wizard"  
+                 xmlns:Equipment="clr-namespace:Dempbot4.View.Equipment"  
+                 xmlns:Experiment="clr-namespace:Dempbot4.View.Experiment" 
+                 xmlns:Graphs="clr-namespace:Dempbot4.View.Graphs" 
+                 xmlns:Experiments="clr-namespace:Dempbot4.Views.Experiments" 
+                 x:Class="Dempbot4.View.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:avalonDock="clr-namespace:Xceed.Wpf.AvalonDock;assembly=Xceed.Wpf.AvalonDock"
+        xmlns:adconv="clr-namespace:Xceed.Wpf.AvalonDock.Converters;assembly=Xceed.Wpf.AvalonDock"
+        xmlns:adlayout="clr-namespace:Xceed.Wpf.AvalonDock.Layout;assembly=Xceed.Wpf.AvalonDock"
+        xmlns:adctrl="clr-namespace:Xceed.Wpf.AvalonDock.Controls;assembly=Xceed.Wpf.AvalonDock"
+xmlns:mah="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
+        xmlns:conv="clr-namespace:Dempbot4.Converter"
+        xmlns:pane="clr-namespace:Dempbot4.View.Pane"
+                 xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
+                 WindowTitleBrush="DarkSlateGray"
+               
+                 Closing="mainWindow_Closing"
+                 Loaded="mainWindow_Loaded"
+WindowState="Maximized"
+        x:Name="mainWindow"
+        Title="Dempbot" Height="800" Width="1600">
+    <Window.Resources>
+        <conv:ActiveDocumentConverter x:Key="ActiveDocumentConverter"/>
+        <adconv:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+    </Window.Resources>
+    <mah:MetroWindow.RightWindowCommands>
+        <mah:WindowCommands>
+            <Button Width="250" Background="{Binding PlayColor, Mode=OneWay}" ToolTip="Python Status" Content="{Binding PlayTitle, Mode=OneWay}"></Button>
+            <Button x:Name="btnTest"   ToolTip="Sends a Zero request on all the bias channels" Command="{Binding ZeroCommand}">
+                <StackPanel Orientation="Horizontal">
+                    <iconPacks:PackIconCodicons Width="22" Height="22" Kind="CircleLargeOutline" />
+                    <Label VerticalAlignment="Center"  >Zero</Label>
+                </StackPanel>
+            </Button>
+        </mah:WindowCommands>
+    </mah:MetroWindow.RightWindowCommands>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Menu>
+            <MenuItem Header="File">
+                <MenuItem Header="New Py" Command="{Binding NewCommandPy}"/>
+                <MenuItem Header="New Lua" Command="{Binding NewCommandLua}"/>
+                <MenuItem Header="Open" Command="{Binding OpenCommand}"/>
+                <Separator/>
+                <MenuItem Header="Save" Command="{Binding ActiveDocument.SaveCommand}"/>
+                <MenuItem Header="Save As..." Command="{Binding ActiveDocument.SaveAsCommand}"/>
+
+
+                <Separator/>
+                <MenuItem Header="Close" Command="{Binding ActiveDocument.CloseCommand}"/>
+
+            </MenuItem>
+            <MenuItem Header="Tools">
+                <MenuItem Header="Experiment Wizard" Command="{Binding ExperimentCommand}"/>
+                <Separator/>
+                <MenuItem Header="IV Wizard" Command="{Binding IVCommand}"/>
+                <MenuItem Header="RT Wizard" Command="{Binding RTCommand}"/>
+                <MenuItem Header="CV Wizard" Command="{Binding CVCommand}"/>
+                <Separator/>
+                <MenuItem Header="Channel Setup" Command="{Binding ChannelCommand}"/>
+                <Separator/>
+                <MenuItem Header="Console" Command="{Binding ConsoleCommand}"/>
+                <MenuItem Header="Scripts" Command="{Binding ScriptsCommand}"/>
+                <Separator/>
+                <MenuItem Header="Analysis" Command="{Binding AnalysisCommand}"/>
+                <MenuItem Header="Single File" Command="{Binding SingleAnalysisCommand}"/>
+                
+            </MenuItem>
+            <MenuItem Header="Layout">
+                <MenuItem Header="Load" Command="{Binding LoadLayoutCommand, ElementName=mainWindow}"/>
+                <MenuItem Header="Save" Command="{Binding SaveLayoutCommand, ElementName=mainWindow}"/>
+                <MenuItem Header="Dump to Console" Click="OnDumpToConsole"/>
+            </MenuItem>
+        </Menu>
+        <!--AnchorablesSource="{Binding Tools}" DocumentsSource="{Binding Files}"-->
+        <avalonDock:DockingManager x:Name="dockManager" 
+                                   AnchorablesSource="{Binding Tools}" 
+                                   DocumentsSource="{Binding Files}"
+                                   ActiveContent="{Binding ActiveDocument, Mode=TwoWay, Converter={StaticResource ActiveDocumentConverter}}"
+                                   Grid.Row="1">
+            <avalonDock:DockingManager.LayoutItemTemplateSelector>
+                <pane:PanesTemplateSelector>
+                    <pane:PanesTemplateSelector.RTWizardTemplate>
+                        <DataTemplate>
+                            <Wizard:RTWizardView  DataContext="{Binding ViewModel}"/>
+                        </DataTemplate>
+                    </pane:PanesTemplateSelector.RTWizardTemplate>
+
+                    <pane:PanesTemplateSelector.ScriptViewTemplate>
+                        <DataTemplate>
+                            <Experiment:ScriptWindow  DataContext="{Binding ViewModel}"/>
+                        </DataTemplate>
+                    </pane:PanesTemplateSelector.ScriptViewTemplate>
+
+                    <pane:PanesTemplateSelector.AnalysisGraphTemplate>
+                        <DataTemplate>
+                            <Graphs:AnalysisGraphView DataContext="{Binding ViewModel}"/>
+                        </DataTemplate>
+                    </pane:PanesTemplateSelector.AnalysisGraphTemplate>
+
+                    <pane:PanesTemplateSelector.SingleAnalysisGraphTemplate>
+                        <DataTemplate>
+                            <Graphs:SingleGraphView DataContext="{Binding ViewModel}"/>
+                        </DataTemplate>
+                    </pane:PanesTemplateSelector.SingleAnalysisGraphTemplate>
+
+                    <pane:PanesTemplateSelector.IVWizardTemplate>
+                        <DataTemplate>
+                            <Wizard:IVWizardView  DataContext="{Binding ViewModel}"/>
+                        </DataTemplate>
+                    </pane:PanesTemplateSelector.IVWizardTemplate>
+                    <pane:PanesTemplateSelector.CVWizardTemplate>
+                        <DataTemplate>
+                            <Wizard:CVWizardView  DataContext="{Binding ViewModel}"/>
+                        </DataTemplate>
+                    </pane:PanesTemplateSelector.CVWizardTemplate>
+                    <pane:PanesTemplateSelector.ExperimentWizardTemplate>
+                        <DataTemplate>
+                            <Wizard:ExperimentWizardView  DataContext="{Binding ViewModel}"/>
+                        </DataTemplate>
+                    </pane:PanesTemplateSelector.ExperimentWizardTemplate>
+
+                    <pane:PanesTemplateSelector.CodeEditViewTemplate>
+                        <DataTemplate>
+                            <Experiments:CodeEditor DataContext="{Binding ViewModel}"/>
+                        </DataTemplate>
+                    </pane:PanesTemplateSelector.CodeEditViewTemplate>
+                    <pane:PanesTemplateSelector.QuickGraphViewTemplate>
+                        <DataTemplate>
+                            <Graphs:QuickGraphView DataContext="{Binding ViewModel}" />
+                        </DataTemplate>
+                    </pane:PanesTemplateSelector.QuickGraphViewTemplate>
+                    <pane:PanesTemplateSelector.ConsoleViewTemplate >
+                        <DataTemplate>
+                            <Experiment:ConsoleWindow DataContext="{Binding ViewModel}"  />
+                        </DataTemplate>
+                    </pane:PanesTemplateSelector.ConsoleViewTemplate>
+
+                    <pane:PanesTemplateSelector.ChannelSelectorTemplate>
+                        <DataTemplate>
+                            <Equipment:ChannelSelectorView DataContext="{Binding ViewModel}" />
+                        </DataTemplate>
+                    </pane:PanesTemplateSelector.ChannelSelectorTemplate>
+
+                    <pane:PanesTemplateSelector.VariableViewTemplate>
+                        <DataTemplate>
+                            <Experiment:VariableWindow  DataContext="{Binding ViewModel}" />
+                        </DataTemplate>
+                    </pane:PanesTemplateSelector.VariableViewTemplate>
+
+
+
+                </pane:PanesTemplateSelector>
+            </avalonDock:DockingManager.LayoutItemTemplateSelector>
+
+            <avalonDock:DockingManager.LayoutItemContainerStyleSelector>
+                <pane:PanesStyleSelector>
+                    <pane:PanesStyleSelector.ToolStyle>
+                        <Style TargetType="{x:Type adctrl:LayoutAnchorableItem}">
+                            <Setter Property="Title" Value="{Binding Model.Title}"/>
+                            <Setter Property="IconSource" Value="{Binding Model.IconSource}"/>
+                            <Setter Property="Visibility" Value="{Binding Model.IsVisible, Mode=TwoWay, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter={x:Static Visibility.Hidden}}"/>
+                            <Setter Property="ContentId" Value="{Binding Model.ContentId}"/>
+                            <Setter Property="IsSelected" Value="{Binding Model.IsSelected, Mode=TwoWay}"/>
+                            <Setter Property="IsActive" Value="{Binding Model.IsActive, Mode=TwoWay}"/>
+                            <Setter Property="CanClose" Value="{Binding Model.Closable, Mode=OneWay}"/>
+
+                        </Style>
+                    </pane:PanesStyleSelector.ToolStyle>
+                    <pane:PanesStyleSelector.FileStyle>
+                        <Style TargetType="{x:Type adctrl:LayoutItem}">
+                            <Setter Property="Title" Value="{Binding Model.Title}"/>
+                            <Setter Property="IconSource" Value="{Binding Model.IconSource}"/>
+                            <Setter Property="ToolTip" Value="{Binding Model.FilePath}"/>
+                            <Setter Property="CloseCommand" Value="{Binding Model.CloseCommand}"/>
+                            <Setter Property="ContentId" Value="{Binding Model.ContentId}"/>
+                            <Setter Property="CanClose" Value="{Binding Model.Closable}"/>
+                        </Style>
+                    </pane:PanesStyleSelector.FileStyle>
+
+                </pane:PanesStyleSelector>
+            </avalonDock:DockingManager.LayoutItemContainerStyleSelector>
+            <avalonDock:DockingManager.LayoutUpdateStrategy>
+                <pane:LayoutInitializer/>
+            </avalonDock:DockingManager.LayoutUpdateStrategy>
+
+            <adlayout:LayoutRoot>
+                <adlayout:LayoutPanel Orientation="Vertical">
+                    <adlayout:LayoutDocumentPane/>
+                    <adlayout:LayoutAnchorablePane Name="ToolsPane" DockHeight="150"></adlayout:LayoutAnchorablePane>
+                </adlayout:LayoutPanel>
+            </adlayout:LayoutRoot>
+        </avalonDock:DockingManager>
+    </Grid>
+</mah:MetroWindow>
